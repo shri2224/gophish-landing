@@ -1,0 +1,11 @@
+<form method="POST" action="/submit">
+  <input type="hidden" name="rid" id="rid" value="" />
+  <input type="email"    name="username" placeholder=" " required />
+  <input type="password" name="password" placeholder=" " required />
+  <button type="submit">Next</button>
+</form>
+
+<script>
+  const params = new URLSearchParams(window.location.search)
+  document.getElementById('rid').value = params.get('rid') || ''
+</script>
